@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Cegah zoom di mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Testimoni Proteales</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&family=Yeseva+One&display=swap" rel="stylesheet" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #1f2a35;
+      color: #fff;
+      font-family: 'Josefin Sans', sans-serif;
+    }
+
+    .logo {
+      display: flex;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+
+    .logo img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid #d2ac95;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    header {
+      text-align: center;
+      padding: 1.2rem 1rem 1rem;
+      font-family: 'Yeseva One', cursive;
+      font-size: 2rem;
+      color: #d2ac95;
+    }
+
+    .form-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .form-box input,
+    .form-box textarea {
+      width: 100%;
+      max-width: 500px;
+      margin: 0.5rem 0;
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #d2ac95;
+      background-color: transparent;
+      color: #d2ac95;
+      font-family: 'Josefin Sans';
+      font-size: 1rem;
+    }
+
+    .form-box textarea {
+      resize: vertical;
+    }
+
+    .form-box button {
+      margin-top: 1rem;
+      padding: 0.7rem 2rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #d2ac95;
+      color: #1f2a35;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .form-box button:hover {
+      background-color: #c49983;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 1rem;
+      gap: 1rem;
+    }
+
+    .card {
+      background-color: #2b3845;
+      border-left: 4px solid #d2ac95;
+      border-radius: 10px;
+      padding: 1rem;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .card h3 {
+      margin: 0;
+      font-family: 'Yeseva One';
+      color: #d2ac95;
+      font-size: 1.2rem;
+    }
+
+    .card .tanggal {
+      margin-top: 0.3rem;
+      font-size: 0.85rem;
+      color: #d2ac95;
+      margin-bottom: 0.5rem;
+    }
+
+    .divider {
+      height: 1px;
+      background-color: #d2ac95;
+      margin: 0.5rem 0;
+      border: none;
+    }
+
+    .card p {
+      font-size: 0.95rem;
+      color: #ffffff;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    @media screen and (max-width: 600px) {
+      header {
+        font-size: 1.5rem;
+      }
+
+      .form-box input,
+      .form-box textarea,
+      .card {
+        width: 100%;
+      }
+
+      .form-box {
+        padding: 1rem 1.2rem;
+      }
+
+      .container {
+        padding: 1rem 1rem 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo">
+    <img src="Proteales.png" alt="Logo Proteales" />
+  </div>
+
+  <header>Testimoni Proteales</header>
+
+  <div class="form-box">
+    <input type="text" id="nama" placeholder="Nama Anda" />
+    <textarea id="pesan" placeholder="Tulis testimoni Anda di sini..." rows="4"></textarea>
+    <button onclick="kirimTestimoni()">Kirim</button>
+  </div>
+
+  <div class="container" id="testimoni-container">
+    <!-- Testimoni akan dimuat di sini -->
+  </div>
+
+  <!-- Firebase Setup -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB45HEpBC6npN-QTueJdM_xaNx6TwGTXyw",
+      authDomain: "arise-63f67.firebaseapp.com",
+      databaseURL: "https://arise-63f67-default-rtdb.firebaseio.com",
+      projectId: "arise-63f67",
+      storageBucket: "arise-63f67.firebasestorage.app",
+      messagingSenderId: "847026490456",
+      appId: "1:847026490456:web:c67170501ceed1f3918e2d",
+      measurementId: "G-1VRG4G4FPV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getDatabase(app);
+
+    function formatTanggal(isoString) {
+      const tanggal = new Date(isoString);
+      return tanggal.toLocaleDateString("id-ID", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+    }
+
+    window.kirimTestimoni = function () {
+      const nama = document.getElementById("nama").value.trim();
+      const pesan = document.getElementById("pesan").value.trim();
+      if (nama && pesan) {
+        push(ref(db, "testimoni"), {
+          nama: nama,
+          pesan: pesan,
+          waktu: new Date().toISOString()
+        });
+        document.getElementById("nama").value = "";
+        document.getElementById("pesan").value = "";
+        alert("Testimoni berhasil dikirim!");
+      } else {
+        alert("Mohon isi semua kolom.");
+      }
+    };
+
+    const testimoniContainer = document.getElementById("testimoni-container");
+    const testimoniRef = ref(db, "testimoni");
+
+    onValue(testimoniRef, (snapshot) => {
+      testimoniContainer.innerHTML = "";
+      const data = snapshot.val();
+      if (data) {
+        const dataArray = Object.values(data).sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
+        dataArray.forEach(item => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <h3>${item.nama}</h3>
+            <div class="tanggal">${formatTanggal(item.waktu)}</div>
+            <hr class="divider" />
+            <p>${item.pesan}</p>
+          `;
+          testimoniContainer.appendChild(card);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
